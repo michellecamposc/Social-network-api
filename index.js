@@ -17,6 +17,16 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Load routes
+const userRoute = require("./routes/user");
+const publicationRoute = require("./routes/publication");
+const followRoute = require("./routes/follow");
+
+app.use("/api", userRoute);
+app.use("/api", publicationRoute);
+app.use("/api", followRoute);
+
+
 // Listening to http requests
 app.listen(port, () => {
   console.log("Node server", port);
