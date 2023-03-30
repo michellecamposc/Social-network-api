@@ -1,6 +1,8 @@
+const connection = require("./database/connection");
+
 //Database connection
-
-
+console.log("Node API for social Network initialized");
+connection();
 
 
 // Create node server
