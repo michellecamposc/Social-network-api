@@ -22,9 +22,9 @@ const userRoute = require("./routes/user");
 const publicationRoute = require("./routes/publication");
 const followRoute = require("./routes/follow");
 
-app.use("/api", userRoute);
-app.use("/api", publicationRoute);
-app.use("/api", followRoute);
+app.use("/api/user", userRoute);
+app.use("/api/publication", publicationRoute);
+app.use("/api/follow", followRoute);
 
 
 // Listening to http requests
