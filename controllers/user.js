@@ -1,5 +1,7 @@
 const User = require("../models/user");
 const bcrypt = require("bcrypt");
+const jwt = require("../services/jwt");
+
 
 const userTest = (req, res) => {
   return res.status(200).send({
@@ -93,7 +95,7 @@ const login = async (req, res) => {
     }
 
     // Return token
-    const token = false;
+    const token = jwt.createToken(user);
 
     // Return user data
     return res.status(200).send({
