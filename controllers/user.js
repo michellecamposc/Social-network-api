@@ -2,15 +2,14 @@ const User = require("../models/user");
 const bcrypt = require("bcrypt");
 const jwt = require("../services/jwt");
 
-
 const userTest = (req, res) => {
   return res.status(200).send({
     message: "Sent message from: controllers/user.js",
+    user: req.user,
   });
 };
 
 const register = async (req, res) => {
-
   const { name, email, password, nick } = req.body;
 
   // Check and validate data
@@ -53,7 +52,6 @@ const register = async (req, res) => {
       message: "User registration action",
       user: userToSave,
     });
-
   } catch (error) {
     // Response with error message and error object
     return res.status(500).json({
@@ -106,9 +104,8 @@ const login = async (req, res) => {
         name: user.name,
         nick: user.nick,
       },
-      token
+      token,
     });
-
   } catch (error) {
     return res.status(500).send({
       status: "error",

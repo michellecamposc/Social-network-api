@@ -1,11 +1,11 @@
 const jwt = require("jwt-simple");
 const moment = require("moment");
 
-// Secret password
+// Secret password to codify the token
 const secret = "KEY_SECRET_of_project_social_media_987789";
 
 // Function to generate token
-exports.createToken = (user) => {
+const createToken = (user) => {
   const payload = {
     id: user._id,
     name: user.name,
@@ -20,4 +20,9 @@ exports.createToken = (user) => {
 
   // Return encoded token
   return jwt.encode(payload, secret);
+};
+
+module.exports = {
+  secret,
+  createToken,
 };
