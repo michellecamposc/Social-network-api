@@ -62,7 +62,62 @@ const register = async (req, res) => {
   }
 };
 
+const login = async (req, res) => {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return res.status(400).send({
+      status: "error",
+      message: "Missing data to send",
+    });
+  }
+
+  try {
+    // Find in database if the user exist
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).send({
+        status: "error",
+        message: "User doesn't exist",
+      });
+    }
+
+    // Check password comparing
+    const isPasswordCorrect = bcrypt.compareSync(password, user.password);
+
+    if (!isPasswordCorrect) {
+      return res.status(400).send({
+        status: "error",
+        message: "You have not correctly identified",
+      });
+    }
+
+    // Return token
+    const token = false;
+
+    // Return user data
+    return res.status(200).send({
+      status: "success",
+      message: "you have identified yourself correctly",
+      user: {
+        id: user._id,
+        name: user.name,
+        nick: user.nick,
+      },
+      token
+    });
+
+  } catch (error) {
+    return res.status(500).send({
+      status: "error",
+      message: "Internal server error",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   userTest,
   register,
+  login,
 };
