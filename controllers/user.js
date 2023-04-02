@@ -115,8 +115,41 @@ const login = async (req, res) => {
   }
 };
 
+// Show the user profile
+const profile = async (req, res) => {
+  // Receive the user id parameter
+  const id = req.params.id;
+
+  // Query to retrieve user data
+  try {
+    // Find in database if the user exist
+    const userProfile = await User.findById(id, { password: 0, role: 0 });
+    if (!userProfile) {
+      return res.status(404).send({
+        status: "error",
+        message: "User doesn't exist or there is an error",
+      });
+    }
+
+    // Return the result
+    return res.status(200).json({
+      status: "success",
+      user: userProfile,
+    });
+
+    //Return follow information
+  } catch (error) {
+    return res.status(500).send({
+      status: "error",
+      message: "Internal server error",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   userTest,
   register,
   login,
+  profile,
 };
