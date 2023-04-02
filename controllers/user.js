@@ -9,6 +9,7 @@ const userTest = (req, res) => {
   });
 };
 
+// User registration function with password validation and encryption
 const register = async (req, res) => {
   const { name, email, password, nick } = req.body;
 
@@ -62,6 +63,7 @@ const register = async (req, res) => {
   }
 };
 
+// Implement login with JWT token authentication
 const login = async (req, res) => {
   const { email, password } = req.body;
 
@@ -115,12 +117,11 @@ const login = async (req, res) => {
   }
 };
 
-// Show the user profile
+// Add profile function to get user information without showing password or role.
 const profile = async (req, res) => {
   // Receive the user id parameter
   const id = req.params.id;
 
-  // Query to retrieve user data
   try {
     // Find in database if the user exist
     const userProfile = await User.findById(id, { password: 0, role: 0 });
