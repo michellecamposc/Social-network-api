@@ -1,6 +1,7 @@
 const User = require("../models/user");
 const bcrypt = require("bcrypt");
 const jwt = require("../services/jwt");
+const mongoosePaginate = require("mongoose-paginate-v2");
 
 const userTest = (req, res) => {
   return res.status(200).send({
@@ -148,9 +149,39 @@ const profile = async (req, res) => {
   }
 };
 
+//User path list
+const list = async (req, res) => {
+  // Control the page
+  let page = parseInt(req.params.page) || 1;
+
+  // Consult with mongoose paginate
+  let itemPerPage = 1;
+
+  try {
+    const result = await User.paginate(
+      {},
+      { page, limit: itemPerPage, sort: { _id: 1 } }
+    );
+    return res.status(200).json({
+      status: "success",
+      page,
+      itemPerPage,
+      users: result.docs,
+      total: result.total,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      status: "error",
+      message: "An error occurred while processing your request",
+      error,
+    });
+  }
+};
+
 module.exports = {
   userTest,
   register,
   login,
   profile,
+  list,
 };
