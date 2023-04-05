@@ -177,7 +177,7 @@ const list = async (req, res) => {
     return res.status(500).json({
       status: "error",
       message: "An error occurred while processing your request",
-    });
+    })
   }
 };
 
