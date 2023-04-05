@@ -35,8 +35,8 @@ const register = async (req, res) => {
     });
 
     if (existingUser) {
-      return res.status(200).json({
-        status: "success",
+      return res.status(409).json({
+        status: "error",
         message: "The user already exists",
       });
     }
@@ -51,7 +51,7 @@ const register = async (req, res) => {
     // Response with success message and user object
     return res.status(200).json({
       status: "success",
-      message: "User registration action",
+      message: "User successfully registered",
       user: userToSave,
     });
   } catch (error) {
