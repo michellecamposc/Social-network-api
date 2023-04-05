@@ -158,7 +158,8 @@ const list = async (req, res) => {
   let itemsPerPage = 4;
 
   try {
-    const result = await User.paginate({},
+    const result = await User.paginate(
+      {},
       { page, limit: itemsPerPage, sort: { _id: 1 } }
     );
 
@@ -171,16 +172,66 @@ const list = async (req, res) => {
       users: result.docs,
       page,
       itemsPerPage,
-      totalPages
+      totalPages,
     });
   } catch (error) {
     return res.status(500).json({
       status: "error",
       message: "An error occurred while processing your request",
-    })
+    });
   }
 };
 
+// Update a user in a database
+const update = async (req, res) => {
+  const userIdentity = req.user;
+  let usertoUpdate = { ...req.body };
+
+  // Delete object properties
+  delete usertoUpdate.role;
+  delete usertoUpdate.iat;
+  delete usertoUpdate.exp;
+  delete usertoUpdate.image;
+
+  try {
+    const existingUser = await User.findOne({
+      $or: [
+        { email: usertoUpdate.email.toLowerCase() },
+        { nick: usertoUpdate.nick.toLowerCase() },
+      ],
+    });
+
+    if (existingUser && existingUser.id !== userIdentity.id) {
+      return res.status(409).json({
+        status: "error",
+        message: "User already exists",
+      });
+    }
+
+    // Encrypt password
+    if (usertoUpdate.password) {
+      const hash = await bcrypt.hash(usertoUpdate.password, 10);
+      usertoUpdate.password = hash;
+    }
+
+    // Find and update user
+    const updatedUser = await User.findByIdAndUpdate(userIdentity.id, usertoUpdate, { new: true });
+
+    // Response with success
+    return res.status(200).json({
+      status: "success",
+      message: "User updated successfully",
+      userIdentity: updatedUser,
+    });
+  } catch (error) {
+    // Response with error message and error object
+    return res.status(500).json({
+      status: "error",
+      message: "Failed to update user",
+      error: error.message,
+    });
+  }
+};
 
 module.exports = {
   userTest,
@@ -188,4 +239,5 @@ module.exports = {
   login,
   profile,
   list,
+  update,
 };

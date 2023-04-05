@@ -9,6 +9,7 @@ const UserSchema = Schema({
   surname: {
     type: String,
   },
+  bio: String,
   nick: {
     type: String,
     required: true,
@@ -39,5 +40,5 @@ const UserSchema = Schema({
 UserSchema.plugin(mongoosePaginate);
 
 
-//Export module
+// Export module
 module.exports = model("User", UserSchema, "users");
