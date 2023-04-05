@@ -1,8 +1,8 @@
 const User = require("../models/user");
 const bcrypt = require("bcrypt");
 const jwt = require("../services/jwt");
-const mongoosePaginate = require("mongoose-paginate-v2");
 
+// Just for testing
 const userTest = (req, res) => {
   return res.status(200).send({
     message: "Sent message from: controllers/user.js",
@@ -155,28 +155,32 @@ const list = async (req, res) => {
   let page = parseInt(req.params.page) || 1;
 
   // Consult with mongoose paginate
-  let itemPerPage = 1;
+  let itemsPerPage = 4;
 
   try {
-    const result = await User.paginate(
-      {},
-      { page, limit: itemPerPage, sort: { _id: 1 } }
+    const result = await User.paginate({},
+      { page, limit: itemsPerPage, sort: { _id: 1 } }
     );
+
+    // Calculate the total pages
+    const total = result.total;
+    const totalPages = Math.ceil(total / itemsPerPage);
+
     return res.status(200).json({
       status: "success",
-      page,
-      itemPerPage,
       users: result.docs,
-      total: result.total,
+      page,
+      itemsPerPage,
+      totalPages
     });
   } catch (error) {
     return res.status(500).json({
       status: "error",
       message: "An error occurred while processing your request",
-      error,
     });
   }
 };
+
 
 module.exports = {
   userTest,
