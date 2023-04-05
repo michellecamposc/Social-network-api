@@ -233,6 +233,21 @@ const update = async (req, res) => {
   }
 };
 
+// File upload
+const upload = (req, res) => {
+
+
+
+
+  return res.status(200).json({
+    status: "success",
+    message: "File upload successfully",
+    user: req.user,
+    file: req.file,
+    files: req.files
+  });
+}
+
 module.exports = {
   userTest,
   register,
@@ -240,4 +255,5 @@ module.exports = {
   profile,
   list,
   update,
+  upload
 };
