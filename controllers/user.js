@@ -219,7 +219,7 @@ const update = async (req, res) => {
 
     // Find and update user
     const updatedUser = await User.findByIdAndUpdate(
-      userIdentity.id,
+      { _id: userIdentity.id },
       usertoUpdate,
       { new: true }
     );
@@ -272,7 +272,7 @@ const upload = async (req, res) => {
   } else {
     // Find and update the image
     let updatedImage = await User.findOneAndUpdate(
-      req.user.id,
+      { _id: req.user.id },
       { image: req.file.filename },
       { new: true }
     );
@@ -297,7 +297,7 @@ const upload = async (req, res) => {
   }
 };
 
-// Show the avatar image 
+// Show the avatar image
 const avatar = async (req, res) => {
   const {
     params: { file },
@@ -317,8 +317,6 @@ const avatar = async (req, res) => {
   // Return the file
   return res.status(200).sendFile(filePath);
 };
-
-
 
 module.exports = {
   userTest,
