@@ -1,6 +1,11 @@
 const User = require("../models/user");
 const bcrypt = require("bcrypt");
 const jwt = require("../services/jwt");
+const fs = require("fs");
+const path = require('path');
+const mime = require('mime');
+
+
 
 // Just for testing
 const userTest = (req, res) => {
@@ -215,7 +220,11 @@ const update = async (req, res) => {
     }
 
     // Find and update user
-    const updatedUser = await User.findByIdAndUpdate(userIdentity.id, usertoUpdate, { new: true });
+    const updatedUser = await User.findByIdAndUpdate(
+      userIdentity.id,
+      usertoUpdate,
+      { new: true }
+    );
 
     // Response with success
     return res.status(200).json({
@@ -233,20 +242,62 @@ const update = async (req, res) => {
   }
 };
 
-// File upload
-const upload = (req, res) => {
+// Upload an image
+const upload = async (req, res) => {
+  // If an image has not been uploaded
+  if (!req.file) {
+    return res.status(400).json({
+      status: "error",
+      message: "The request does not include the image",
+    });
+  }
 
+  // Know the file extension
+  let fileName = req.file.originalname;
+  const fileExtension = path.extname(fileName);
 
+  //Verify the file extension is an image
+  const isImage = mime.lookup(fileExtension).match(/^image\//);
 
+  if (!isImage) {
+    // Delete the file
+    fs.unlink(req.file.path, (err) => {
+      if (err) {
+        console.log(err);
+      }
+    });
 
-  return res.status(200).json({
-    status: "success",
-    message: "File upload successfully",
-    user: req.user,
-    file: req.file,
-    files: req.files
-  });
-}
+    return res.status(400).json({
+      status: "error",
+      message: "Only image files are allowed",
+    });
+  } else {
+    // Find and update the image
+    let updatedImage = await User.findOneAndUpdate(
+      req.user.id,
+      { image: req.file.filename },
+      { new: true }
+    );
+    try {
+      if (!updatedImage) {
+        return res.status(404).send({
+          status: "error",
+          message: "Failed to update",
+        });
+      }
+      return res.status(200).send({
+        status: "success",
+        user: updatedImage,
+        file: req.file,
+      });
+    } catch (error) {
+      return res.status(500).send({
+        status: "error",
+        message: "Something went wrong!",
+      });
+    }
+  }
+};
 
 module.exports = {
   userTest,
@@ -255,5 +306,5 @@ module.exports = {
   profile,
   list,
   update,
-  upload
+  upload,
 };
