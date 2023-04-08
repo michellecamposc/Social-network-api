@@ -2,10 +2,8 @@ const User = require("../models/user");
 const bcrypt = require("bcrypt");
 const jwt = require("../services/jwt");
 const fs = require("fs");
-const path = require('path');
-const mime = require('mime');
-
-
+const path = require("path");
+const mime = require("mime");
 
 // Just for testing
 const userTest = (req, res) => {
@@ -299,6 +297,29 @@ const upload = async (req, res) => {
   }
 };
 
+// Show the avatar image 
+const avatar = async (req, res) => {
+  const {
+    params: { file },
+  } = req;
+
+  // Path of the image
+  const filePath = path.resolve(`./uploads/avatars/${file}`);
+
+  // Check if exists
+  if (!fs.existsSync(filePath)) {
+    return res.status(404).send({
+      status: "error",
+      message: "The image doesn't exist",
+    });
+  }
+
+  // Return the file
+  return res.status(200).sendFile(filePath);
+};
+
+
+
 module.exports = {
   userTest,
   register,
@@ -307,4 +328,5 @@ module.exports = {
   list,
   update,
   upload,
+  avatar,
 };
