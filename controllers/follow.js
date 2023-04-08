@@ -24,7 +24,7 @@ const saveFollow = async (req, res) => {
     return res.status(200).send({
       status: "success",
       identity,
-      userToFollow: savedFollow
+      userToFollow: savedFollow,
     });
   } catch {
     console.log(error);
@@ -35,7 +35,32 @@ const saveFollow = async (req, res) => {
   }
 };
 
+// Unfollow action
+const unfollow = async (req, res) => {
+  const userId = req.user.id;
+  const followedId = req.params.id;
+
+  try {
+    const followDeleted = await Follow.deleteOne({
+      user: userId,
+      followed: followedId,
+    });
+    return res.status(200).send({
+      status: "success",
+      message: "Follower removed successfully",
+      followDeleted,
+    });
+  } catch {
+    console.log(error);
+    return res.status(500).send({
+      status: "error",
+      message: "Error deleting follow",
+    });
+  }
+};
+
 module.exports = {
   followTest,
   saveFollow,
+  unfollow,
 };
