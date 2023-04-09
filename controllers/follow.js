@@ -5,7 +5,6 @@ const User = require("../models/user");
 // Import service
 const followService = require("../services/followService");
 
-
 const followTest = (req, res) => {
   return res.status(200).send({
     message: "Sent message from: controllers/follow.js",
@@ -82,14 +81,14 @@ const getFollowingUsers = async (req, res) => {
     );
 
     // Get an object with an array of IDs of the users followed by the user with the provided ID.
-    let followUsersIds = followService.followUsersId(req.user.id)
+    let followUsersIds = followService.followUsersId(req.user.id);
 
     return res.status(200).send({
       status: "success",
       message: "List of users that I'm following",
       following,
       user_following: (await followUsersIds).following,
-      user_follow_me: (await followUsersIds).followers
+      user_follow_me: (await followUsersIds).followers,
     });
   } catch (error) {
     return res.status(500).send({
@@ -101,12 +100,38 @@ const getFollowingUsers = async (req, res) => {
 
 // List of users who follow me
 const getFollowers = async (req, res) => {
-  return res.status(200).send({
-    status: "success",
-    message: "List of users who follow me",
-  });
-};
+  let { id: userId, page = 1 } = req.params;
+  // Users per page
+  const itemsPerPage = 5;
 
+  try {
+    const followers = await Follow.find(
+      { followed: userId },
+      {
+        select: "followed name nick",
+        populate: { path: "user followed", select: "name nick -_id" },
+        page: page,
+        limit: itemsPerPage,
+      }
+    );
+
+    let followUsersIds = followService.followUsersId(req.user.id);
+
+    return res.json({
+      status: "success",
+      message: "List of users who follow me",
+      followers,
+      user_following: (await followUsersIds).following,
+      user_follow_me: (await followUsersIds).followers,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      status: "error",
+      message: "Error fetching user's followers",
+      error: error.message,
+    });
+  }
+};
 module.exports = {
   followTest,
   saveFollow,
