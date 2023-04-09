@@ -1,5 +1,7 @@
 const Publication = require("../models/publication");
-const { post } = require("../routes/publication");
+const fs = require("fs");
+const path = require("path");
+const mime = require("mime");
 
 const publicationTest = (req, res) => {
   return res.status(200).send({
@@ -92,7 +94,7 @@ const removePublication = async (req, res) => {
   }
 };
 
-// List a user's post
+// User post list
 const userPost = async (req, res) => {
   const userId = req.params.id;
   let page = 1;
@@ -135,10 +137,92 @@ const userPost = async (req, res) => {
   }
 };
 
+// Upload post images
+const upload = async (req, res) => {
+  const publicationId = req.params.id;
+  // If an image has not been uploaded
+  if (!req.file) {
+    return res.status(400).json({
+      status: "error",
+      message: "The request does not include the image",
+    });
+  }
+
+  // Know the file extension
+  let fileName = req.file.originalname;
+  const fileExtension = path.extname(fileName);
+
+  //Verify the file extension is an image
+  const isImage = mime.lookup(fileExtension).match(/^image\//);
+
+  if (!isImage) {
+    // Delete the file
+    fs.unlink(req.file.path, (err) => {
+      if (err) {
+        console.log(err);
+      }
+    });
+
+    return res.status(400).json({
+      status: "error",
+      message: "Only image files are allowed",
+    });
+  } else {
+    // Find and update the image
+    let updatedImage = await Publication.findOneAndUpdate(
+      { _id: publicationId, user: req.user.id },
+      { file: req.file.filename },
+      { new: true }
+    );
+    try {
+      if (!updatedImage) {
+        return res.status(404).send({
+          status: "error",
+          message: "Failed to update",
+        });
+      }
+      return res.status(200).send({
+        status: "success",
+        publication: updatedImage,
+        file: req.file,
+      });
+    } catch (error) {
+      return res.status(500).send({
+        status: "error",
+        message: "Something went wrong!",
+      });
+    }
+  }
+};
+
+// Return media files
+const media = async (req, res) => {
+  const {
+    params: { file },
+  } = req;
+
+  // Path of the image
+  const filePath = path.resolve(`./uploads/publications/${file}`);
+
+  // Check if exists
+  if (!fs.existsSync(filePath)) {
+    return res.status(404).send({
+      status: "error",
+      message: "The image doesn't exist",
+    });
+  }
+
+  // Return the file
+  return res.status(200).sendFile(filePath);
+};
+
+
 module.exports = {
   publicationTest,
   savePublication,
   detail,
   removePublication,
   userPost,
+  upload,
+  media
 };

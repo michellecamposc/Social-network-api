@@ -7,7 +7,6 @@ const mime = require("mime");
 // Import services
 const jwt = require("../services/jwt");
 const followService = require("../services/followService");
-const follow = require("../models/follow");
 
 // Just for testing
 const userTest = (req, res) => {
