@@ -29,7 +29,7 @@ const saveFollow = async (req, res) => {
       identity,
       userToFollow: savedFollow,
     });
-  } catch {
+  } catch (error) {
     console.log(error);
     return res.status(500).send({
       status: "error",
