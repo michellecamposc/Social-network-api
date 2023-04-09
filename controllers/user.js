@@ -1,9 +1,13 @@
 const User = require("../models/user");
 const bcrypt = require("bcrypt");
-const jwt = require("../services/jwt");
 const fs = require("fs");
 const path = require("path");
 const mime = require("mime");
+
+// Import services
+const jwt = require("../services/jwt");
+const followService = require("../services/followService");
+const follow = require("../models/follow");
 
 // Just for testing
 const userTest = (req, res) => {
@@ -136,10 +140,18 @@ const profile = async (req, res) => {
       });
     }
 
+    // Tracking information
+    const followInformation = await followService.followThisUser(
+      req.user.id,
+      id
+    );
+
     // Return the result
     return res.status(200).json({
       status: "success",
       user: userProfile,
+      following: followInformation.following,
+      follower: followInformation.followers,
     });
 
     //Return follow information

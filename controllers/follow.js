@@ -2,6 +2,10 @@
 const Follow = require("../models/follow");
 const User = require("../models/user");
 
+// Import service
+const followService = require("../services/followService");
+
+
 const followTest = (req, res) => {
   return res.status(200).send({
     message: "Sent message from: controllers/follow.js",
@@ -59,8 +63,54 @@ const unfollow = async (req, res) => {
   }
 };
 
+// List of users that I'm following
+const getFollowingUsers = async (req, res) => {
+  let { id: userId, page = 1 } = req.params;
+  // Users per page
+  const itemsPerPage = 5;
+
+  // Find following user
+  try {
+    const following = await Follow.paginate(
+      { user: userId },
+      {
+        select: "followed name nick",
+        populate: { path: "followed", select: "name nick -_id" },
+        page: page,
+        limit: itemsPerPage,
+      }
+    );
+
+    // Get an object with an array of IDs of the users followed by the user with the provided ID.
+    let followUsersIds = followService.followUsersId(req.user.id)
+
+    return res.status(200).send({
+      status: "success",
+      message: "List of users that I'm following",
+      following,
+      user_following: (await followUsersIds).following,
+      user_follow_me: (await followUsersIds).followers
+    });
+  } catch (error) {
+    return res.status(500).send({
+      status: "error",
+      message: "Error getting following users",
+    });
+  }
+};
+
+// List of users who follow me
+const getFollowers = async (req, res) => {
+  return res.status(200).send({
+    status: "success",
+    message: "List of users who follow me",
+  });
+};
+
 module.exports = {
   followTest,
   saveFollow,
   unfollow,
+  getFollowingUsers,
+  getFollowers,
 };
