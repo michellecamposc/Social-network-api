@@ -7,6 +7,12 @@ const check = require("../middlewares/auth");
 // Define routes
 router.get("/publication-test", PublicationController.publicationTest);
 router.post("/save", check.auth, PublicationController.savePublication);
+router.get("/detail/:id", check.auth, PublicationController.detail);
+router.delete("/remove/:id", check.auth, PublicationController.remove);
+
+
+
+
 
 // Export router
 module.exports = router;

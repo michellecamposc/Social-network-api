@@ -28,7 +28,7 @@ const savePublication = async (req, res) => {
       message: "Publication was saved",
       publication: savedPublication,
     });
-  } catch {
+  } catch (error) {
     console.log(error);
     return res.status(500).send({
       status: "error",
@@ -37,7 +37,64 @@ const savePublication = async (req, res) => {
   }
 };
 
+// Show publication
+const detail = async (req, res) => {
+  const publicationId = req.params.id;
+
+  try {
+    const publication = await Publication.findById(publicationId);
+    return res.status(200).send({
+      status: "success",
+      message: "Post details displayed",
+      publication,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send({
+      status: "error",
+      message: "Error retrieving publication details",
+    });
+  }
+};
+
+
+// Delete publication
+const remove = async (req, res) => {
+  const publicationId = req.params.id;
+  const userId = req.user.id;
+
+  // Find and delete the publication
+  try {
+    const deletedPublication = await Publication.deleteOne({
+      _id: publicationId,
+      user: userId,
+    });
+
+    // If publication doesn't exist
+    if (deletedPublication.deletedCount === 0) {
+      return res.status(404).send({
+        status: "error",
+        message: "Publication not found",
+      });
+    }
+    // Return the result
+    return res.status(200).send({
+      status: "success",
+      message: "Publication was deleted",
+      deletedPublicationId: publicationId,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send({
+      status: "error",
+      message: "Error deleting publication",
+    });
+  }
+};
+
 module.exports = {
   publicationTest,
   savePublication,
+  detail,
+  remove,
 };
