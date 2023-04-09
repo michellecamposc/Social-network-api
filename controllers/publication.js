@@ -1,4 +1,5 @@
 const Publication = require("../models/publication");
+const { post } = require("../routes/publication");
 
 const publicationTest = (req, res) => {
   return res.status(200).send({
@@ -57,9 +58,8 @@ const detail = async (req, res) => {
   }
 };
 
-
 // Delete publication
-const remove = async (req, res) => {
+const removePublication = async (req, res) => {
   const publicationId = req.params.id;
   const userId = req.user.id;
 
@@ -92,9 +92,53 @@ const remove = async (req, res) => {
   }
 };
 
+// List a user's post
+const userPost = async (req, res) => {
+  const userId = req.params.id;
+  let page = 1;
+  if (req.params.page) page = req.params.page;
+  // Posts per page
+  const itemsPerPage = 5;
+
+  // Find the user posts
+  try {
+    const posts = await Publication.paginate(
+      { user: userId },
+      {
+        sort: { created_at: -1 },
+        select: "-password -__v -role",
+        page: page,
+        limit: itemsPerPage,
+      }
+    );
+    // Return error if there are no posts
+    if (posts.docs.length === 0) {
+      return res.status(404).send({
+        status: "error",
+        message: "No posts found for this user",
+      });
+    }
+    //Return result
+    return res.status(200).send({
+      status: "success",
+      message: "User profile posts",
+      totalPublications: posts.totalDocs,
+      itemsPerPage,
+      page,
+      publications: posts.docs,
+    });
+  } catch (error) {
+    return res.status(500).send({
+      status: "error",
+      message: "Error getting users posts",
+    });
+  }
+};
+
 module.exports = {
   publicationTest,
   savePublication,
   detail,
-  remove,
+  removePublication,
+  userPost,
 };

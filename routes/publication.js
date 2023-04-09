@@ -8,8 +8,8 @@ const check = require("../middlewares/auth");
 router.get("/publication-test", PublicationController.publicationTest);
 router.post("/save", check.auth, PublicationController.savePublication);
 router.get("/detail/:id", check.auth, PublicationController.detail);
-router.delete("/remove/:id", check.auth, PublicationController.remove);
-
+router.delete("/remove/:id", check.auth, PublicationController.removePublication);
+router.get("/user/:id", check.auth, PublicationController.userPost);
 
 
 
