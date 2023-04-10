@@ -175,7 +175,7 @@ const list = async (req, res) => {
     const result = await User.paginate(
       {},
       { page, limit: itemsPerPage, sort: { _id: 1 } }
-    );
+    ).select("-password -email -role -__v");
 
     // Calculate the total pages
     const total = result.total;

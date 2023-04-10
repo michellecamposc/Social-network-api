@@ -111,7 +111,7 @@ const userPost = async (req, res) => {
       { user: userId },
       {
         sort: { created_at: -1 },
-        select: "-password -__v -role",
+        select: "-password -__v -role -email ",
         page: page,
         limit: itemsPerPage,
       }
@@ -219,7 +219,7 @@ const media = async (req, res) => {
   return res.status(200).sendFile(filePath);
 };
 
-// Timeline of social media
+// Timeline of social network to see post
 const feed = async (req, res) => {
   let page = 1;
   if (req.params.page) {

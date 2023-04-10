@@ -74,7 +74,7 @@ const getFollowingUsers = async (req, res) => {
       { user: userId },
       {
         select: "followed name nick",
-        populate: { path: "followed", select: "name nick -_id" },
+        populate: { path: "followed", select: "name nick -_id -email" },
         page: page,
         limit: itemsPerPage,
       }
@@ -109,7 +109,7 @@ const getFollowers = async (req, res) => {
       { followed: userId },
       {
         select: "followed name nick",
-        populate: { path: "user followed", select: "name nick -_id" },
+        populate: { path: "user followed", select: "name nick -_id -email" },
         page: page,
         limit: itemsPerPage,
       }
