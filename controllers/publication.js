@@ -1,7 +1,10 @@
-const Publication = require("../models/publication");
 const fs = require("fs");
 const path = require("path");
 const mime = require("mime");
+
+// Import services and model
+const Publication = require("../models/publication");
+const followService = require("../services/followService");
 
 const publicationTest = (req, res) => {
   return res.status(200).send({
@@ -216,6 +219,38 @@ const media = async (req, res) => {
   return res.status(200).sendFile(filePath);
 };
 
+// Timeline of social media
+const feed = async (req, res) => {
+  let page = 1;
+  if (req.params.page) {
+    page = req.params.page;
+  }
+
+  const itemsPerPage = 5;
+  try {
+    const myFollows = await followService.followUsersId(req.user.id);
+
+    const publication = await Publication.paginate(
+      { user: { $in: myFollows.following } },
+      {
+        sort: { createdAt: -1 },
+        page: page,
+        limit: itemsPerPage,
+      }
+    ).select("-user.password -user.email -user.role");
+
+    return res.status(200).send({
+      status: "success",
+      following: myFollows.following,
+      publication,
+    });
+  } catch (error) {
+    return res.status(500).send({
+      status: "error",
+      message: "Something went wrong!",
+    });
+  }
+};
 
 module.exports = {
   publicationTest,
@@ -224,5 +259,6 @@ module.exports = {
   removePublication,
   userPost,
   upload,
-  media
+  media,
+  feed,
 };

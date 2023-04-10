@@ -34,6 +34,7 @@ router.post(
   PublicationController.upload
 );
 router.get("/media/:file", check.auth, PublicationController.media);
+router.get("/feed/:page?", check.auth, PublicationController.feed);
 
 // Export router
 module.exports = router;
