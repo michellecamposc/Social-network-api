@@ -7,6 +7,8 @@ const mime = require("mime");
 // Import services
 const jwt = require("../services/jwt");
 const followService = require("../services/followService");
+const Follow = require("../models/follow");
+const Publications = require("../models/publication");
 
 // Just for testing
 const userTest = (req, res) => {
@@ -329,6 +331,35 @@ const avatar = async (req, res) => {
   return res.status(200).sendFile(filePath);
 };
 
+// Followers counter
+const counters = async (req, res) => {
+  let userId = req.user.id;
+  if (req.params.id) {
+    userId = req.params.id;
+  }
+
+  try {
+    const following = await Follow.count({ user: userId });
+
+    const followed = await Follow.count({ followed: userId });
+
+    const publications = await Publications.count({ user: userId });
+
+    return res.status(200).json({
+      status: "success",
+      userId,
+      following: following,
+      followed: followed,
+      publications: publications,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      status: "error",
+      message: "An error occurred while processing your request",
+    });
+  }
+};
+
 module.exports = {
   userTest,
   register,
@@ -338,4 +369,5 @@ module.exports = {
   update,
   upload,
   avatar,
+  counters,
 };
