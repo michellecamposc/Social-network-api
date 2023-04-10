@@ -1,14 +1,17 @@
-const User = require("../models/user");
 const bcrypt = require("bcrypt");
 const fs = require("fs");
 const path = require("path");
 const mime = require("mime");
 
+// Import models
+const Follow = require("../models/follow");
+const Publications = require("../models/publication");
+const User = require("../models/user");
+
 // Import services
 const jwt = require("../services/jwt");
 const followService = require("../services/followService");
-const Follow = require("../models/follow");
-const Publications = require("../models/publication");
+const validate = require("../helpers/validate");
 
 // Just for testing
 const userTest = (req, res) => {
@@ -30,10 +33,22 @@ const register = async (req, res) => {
     });
   }
 
+  // Advanced validation
+  const errors = validate(req.body);
+  if (errors.length > 0) {
+    return res.status(400).json({
+      status: "error",
+      message: "Validation error",
+      errors: errors,
+    });
+  }
+
   // Create user object
   const userToSave = new User({ name, email, password, nick });
 
   // Duplicate user control
+  /* NOTA:Debugear esta sección de código, no se corta 
+  la ejecución cuando el usuario ya se encuentra registrado*/
   try {
     const existingUser = await User.findOne({
       $or: [
