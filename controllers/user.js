@@ -43,17 +43,12 @@ const register = async (req, res) => {
     });
   }
 
-  // Create user object
-  const userToSave = new User({ name, email, password, nick });
-
-  // Duplicate user control
-  /* NOTA:Debugear esta sección de código, no se corta 
-  la ejecución cuando el usuario ya se encuentra registrado*/
   try {
+    // Duplicate user control
     const existingUser = await User.findOne({
       $or: [
-        { email: userToSave.email.toLowerCase() },
-        { nick: userToSave.nick.toLowerCase() },
+        { email: email.toLowerCase() },
+        { nick: nick.toLowerCase() },
       ],
     });
 
@@ -63,6 +58,9 @@ const register = async (req, res) => {
         message: "The user already exists",
       });
     }
+
+    // Create user object
+    const userToSave = new User({ name, email, password, nick });
 
     // Encrypt password
     const hash = await bcrypt.hash(userToSave.password, 10);
@@ -75,7 +73,14 @@ const register = async (req, res) => {
     return res.status(200).json({
       status: "success",
       message: "User successfully registered",
-      user: userToSave,
+      user: {
+        name: userToSave.name,
+        nick: userToSave.nick,
+        email: userToSave.email,
+        image: userToSave.image,
+        created_at: userToSave.created_at,
+        id: userToSave._id,
+      },
     });
   } catch (error) {
     // Response with error message and error object
